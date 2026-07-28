@@ -62,7 +62,7 @@ export default function Home() {
   };
 
   const announcementsData = Array.isArray(announcementsQuery.data) ? announcementsQuery.data : [];
-  const announcements = announcementsData.slice(0, 3);
+  const announcements = Array.isArray(announcementsData) ? announcementsData.slice(0, 3) : [];
 
   return (
     <div className="page-enter">
@@ -146,7 +146,7 @@ export default function Home() {
       </section>
 
       {/* ANNOUNCEMENTS */}
-      {announcements.length > 0 && (
+      {Array.isArray(announcements) && announcements.length > 0 && (
         <section className="relative px-6 py-10 md:py-16 bg-[#00E5D4]/5 border-y border-white/5" data-testid="announcements-section">
           <div className="mx-auto max-w-4xl">
             <div className="flex items-center gap-3 mb-6 justify-center">

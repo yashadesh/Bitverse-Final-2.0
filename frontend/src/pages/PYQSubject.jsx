@@ -19,7 +19,8 @@ export default function PYQSubject() {
   const [tab, setTab] = useState("mid");
 
   const { data: subject } = useSubject(subjectId);
-  const { data: files = [] } = useFiles({ category: "pyq", subject_id: subjectId, pyq_type: tab });
+  const { data: rawFiles } = useFiles({ category: "pyq", subject_id: subjectId, pyq_type: tab });
+  const files = Array.isArray(rawFiles) ? rawFiles : [];
 
   return (
     <div className="page-enter mx-auto max-w-6xl px-6 pt-28 md:pt-32">
@@ -63,7 +64,7 @@ export default function PYQSubject() {
           renderItem={(f) => <FileCard key={f.id} file={f} apiBase={API} />}
           emptyState={
             <div className="card-glass p-10 text-center text-white/60">
-              No {TABS.find((t) => t.key === tab).label} papers uploaded yet.
+              No {TABS.find((t) => t.key === tab)?.label || "matching"} papers uploaded yet.
             </div>
           }
         />

@@ -21,6 +21,7 @@ import Viewer from "@/pages/Viewer";
 import DocumentViewerPage from "@/pages/DocumentViewerPage";
 import BstExplorer from "@/pages/BstExplorer";
 import { useAuth } from "@/lib/auth";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -52,22 +53,24 @@ export default function App() {
         <ScrollToTop />
         <Navbar />
         <main className="relative z-10 pb-28 md:pb-0">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/notes" element={<NotesHub />} />
-            <Route path="/notes/sem/:sem" element={<SemesterPage />} />
-            <Route path="/notes/subject/:subjectId" element={<SubjectPage />} />
-            <Route path="/notes/module/:moduleId" element={<ModulePage />} />
-            <Route path="/pyqs" element={<PYQsHub />} />
-            <Route path="/pyqs/subject/:subjectId" element={<PYQSubject />} />
-            <Route path="/syllabus" element={<Syllabus />} />
-            <Route path="/resources" element={<Resources />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/admin" element={<AdminGate />} />
-            <Route path="/viewer/:fileId" element={<Viewer />} />
-            <Route path="/doc-viewer" element={<DocumentViewerPage />} />
-            <Route path="/bst" element={<BstExplorer />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/notes" element={<NotesHub />} />
+              <Route path="/notes/sem/:sem" element={<SemesterPage />} />
+              <Route path="/notes/subject/:subjectId" element={<SubjectPage />} />
+              <Route path="/notes/module/:moduleId" element={<ModulePage />} />
+              <Route path="/pyqs" element={<PYQsHub />} />
+              <Route path="/pyqs/subject/:subjectId" element={<PYQSubject />} />
+              <Route path="/syllabus" element={<Syllabus />} />
+              <Route path="/resources" element={<Resources />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/admin" element={<AdminGate />} />
+              <Route path="/viewer/:fileId" element={<Viewer />} />
+              <Route path="/doc-viewer" element={<DocumentViewerPage />} />
+              <Route path="/bst" element={<BstExplorer />} />
+            </Routes>
+          </ErrorBoundary>
         </main>
         <Footer />
         <MobileNav />
