@@ -60,12 +60,16 @@
     "tailwindcss-animate": "1.0.7",
     "vaul": "1.1.2",
     "zod": "3.24.4",
-    "@craco/craco": "7.1.0"
+    "@craco/craco": "7.1.0",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.5.10",
+    "tailwindcss": "3.4.17",
+    "dotenv": "16.4.5"
   },
   "scripts": {
-    "start": "npx craco start",
-    "build": "CI=false DISABLE_ESLINT_PLUGIN=true npx craco build",
-    "test": "npx craco test"
+    "start": "craco start",
+    "build": "CI=false DISABLE_ESLINT_PLUGIN=true craco build",
+    "test": "craco test"
   },
   "browserslist": {
     "production": [
