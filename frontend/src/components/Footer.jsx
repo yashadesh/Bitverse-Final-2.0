@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LOGO_URL, DEV_PHOTO_URL } from "@/lib/api";
+import { LOGO_URL, DEV_PHOTO_URL, BUNDLED_LOGO_URL, BUNDLED_DEV_PHOTO_URL, handleImgError } from "@/lib/api";
 import { Github, Mail, Heart, Linkedin, Instagram } from "lucide-react";
 
 export default function Footer() {
@@ -20,7 +20,7 @@ export default function Footer() {
               alt="Adesh Yash"
               className="relative w-32 h-32 md:w-36 md:h-36 rounded-full object-cover border-2 border-[#00E5D4]/60 shadow-[0_0_30px_rgba(0,229,212,0.45)]"
               data-testid="dev-photo"
-              onError={(e) => { e.currentTarget.src = '/assets/adesh-yash.png'; }}
+              onError={(e) => handleImgError(e, '/assets/adesh-yash.png', BUNDLED_DEV_PHOTO_URL)}
             />
           </div>
           <div className="flex-1 min-w-0 text-center md:text-left">
@@ -70,7 +70,7 @@ export default function Footer() {
                 src={LOGO_URL}
                 alt="BITVERSE"
                 className="w-16 h-16 object-contain block"
-                onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
+                onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}
               />
             </span>
             <span className="font-display text-2xl font-bold tracking-wider">

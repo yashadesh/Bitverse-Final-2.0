@@ -8,9 +8,24 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 
   '/api';
 
-// 2. Export Webpack bundled image assets with static path fallbacks
-export const LOGO_URL = logoImg || '/assets/bitverse-logo.png';
-export const DEV_PHOTO_URL = devImg || '/assets/adesh-yash.png';
+// 2. Export live dynamic asset URLs so manual file uploads/replacements reflect instantly
+export const LOGO_URL = '/assets/bitverse-logo.png';
+export const DEV_PHOTO_URL = '/assets/adesh-yash.png';
+
+export const BUNDLED_LOGO_URL = logoImg;
+export const BUNDLED_DEV_PHOTO_URL = devImg;
+
+// Helper to handle image loading fallback and automatically retry with bundled or alternate extensions
+export const handleImgError = (e, fallbackPath, bundledFallback) => {
+  const el = e.currentTarget;
+  if (!el.dataset.attempt) {
+    el.dataset.attempt = "1";
+    el.src = (fallbackPath || '/assets/bitverse-logo.png') + '?v=' + Date.now();
+  } else if (el.dataset.attempt === "1" && bundledFallback) {
+    el.dataset.attempt = "2";
+    el.src = bundledFallback;
+  }
+};
 
 // 3. Configure the Axios connection instance
 export const api = axios.create({

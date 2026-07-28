@@ -1800,7 +1800,43 @@ app.get(["/pdf.worker.min.js", "/pdf.worker.js", "/pdf.worker.min.mjs"], (req, r
 
 app.use("/api", apiLimiter, apiRouter);
 
-// Static Options for aggressive browser caching (cuts server bandwidth by up to 80%)
+// Smart Dynamic Asset Serving Handler (Immediate reflection for uploaded/replaced assets)
+app.use(['/assets', '/public/assets', '/src/assets'], (req, res, next) => {
+  const reqPath = req.path.replace(/^\//, '');
+  if (!reqPath) return next();
+
+  const parsed = path.parse(reqPath);
+  const baseName = parsed.name;
+  const originalExt = parsed.ext;
+
+  const candidateDirs = [
+    path.join(process.cwd(), 'frontend', 'public', 'assets'),
+    path.join(process.cwd(), 'frontend', 'src', 'assets'),
+    path.join(process.cwd(), 'frontend', 'build', 'assets'),
+    path.join(process.cwd(), 'frontend', 'public'),
+    path.join(process.cwd(), 'frontend', 'build')
+  ];
+
+  const extsToTry = [originalExt, '.png', '.jpg', '.jpeg', '.webp', '.svg', '.gif'].filter(Boolean);
+  const uniqueExts = Array.from(new Set(extsToTry));
+
+  for (const dir of candidateDirs) {
+    for (const ext of uniqueExts) {
+      const filename = ext.startsWith('.') ? `${baseName}${ext}` : `${baseName}.${ext}`;
+      const fullPath = path.join(dir, filename);
+      if (fs.existsSync(fullPath) && fs.statSync(fullPath).isFile()) {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        return res.sendFile(fullPath);
+      }
+    }
+  }
+
+  next();
+});
+
+// Static Options for aggressive browser caching on compiled JS/CSS bundles
 const staticCacheOptions = {
   maxAge: '30d',
   immutable: true,
@@ -1813,10 +1849,6 @@ const staticCacheOptions = {
     }
   }
 };
-
-// Serve Static Assets directly
-app.use("/assets", express.static(path.join(process.cwd(), "frontend", "public", "assets"), staticCacheOptions));
-app.use("/public/assets", express.static(path.join(process.cwd(), "frontend", "public", "assets"), staticCacheOptions));
 
 // Serve Static Frontend Build in Production / Dev Preview
 const buildPath = path.join(process.cwd(), 'frontend', 'build');

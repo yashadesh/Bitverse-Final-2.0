@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LOGO_URL } from "@/lib/api";
+import { LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
 import TrendingChart from "@/components/TrendingChart";
 import { useStats, useHomepage, useAnnouncements } from "@/hooks/useQueries";
 import {
@@ -80,7 +80,7 @@ export default function Home() {
               alt="BITVERSE — Student Notes Library"
               className="w-48 h-48 md:w-64 md:h-64 object-contain block animate-pulse-glow"
               data-testid="hero-logo"
-              onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
+              onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}
             />
           </span>
         </div>

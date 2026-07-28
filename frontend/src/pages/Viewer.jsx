@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api, API, LOGO_URL } from "@/lib/api";
+import { api, API, LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
 import { ExternalLink, ArrowLeft, Loader2 } from "lucide-react";
 import DocumentViewer from "@/components/DocumentViewer";
 
@@ -97,7 +97,7 @@ export default function Viewer() {
               src={LOGO_URL}
               alt="BITVERSE"
               className="w-8 h-8 md:w-9 md:h-9 object-contain block"
-              onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
+              onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}
             />
           </span>
           <div className="min-w-0">

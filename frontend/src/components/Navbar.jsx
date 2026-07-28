@@ -1,5 +1,5 @@
 import { NavLink, Link, useLocation } from "react-router-dom";
-import { LOGO_URL } from "@/lib/api";
+import { LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
 import { Shield } from "lucide-react";
 
 const links = [
@@ -28,7 +28,7 @@ export default function Navbar() {
                 src={LOGO_URL}
                 alt="BITVERSE"
                 className="w-11 h-11 object-contain block"
-                onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
+                onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}
               />
             </span>
             <span className="font-display text-lg font-bold tracking-wider">

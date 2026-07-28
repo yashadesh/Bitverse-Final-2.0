@@ -1,7 +1,7 @@
 import React from "react";
 import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { LOGO_URL } from "@/lib/api";
+import { LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
 import { Sparkles, Users, ShieldCheck, Zap } from "lucide-react";
 
 const points = [
@@ -28,7 +28,7 @@ export default function About() {
               src={LOGO_URL}
               alt="BITVERSE — Student Notes Library"
               className="w-36 h-36 md:w-44 md:h-44 object-contain block"
-              onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
+              onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}
             />
           </span>
           <p className="text-[#B0B8C5] leading-relaxed">
