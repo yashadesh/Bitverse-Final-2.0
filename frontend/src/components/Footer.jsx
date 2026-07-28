@@ -20,6 +20,7 @@ export default function Footer() {
               alt="Adesh Yash"
               className="relative w-32 h-32 md:w-36 md:h-36 rounded-full object-cover border-2 border-[#00E5D4]/60 shadow-[0_0_30px_rgba(0,229,212,0.45)]"
               data-testid="dev-photo"
+              onError={(e) => { e.currentTarget.src = '/assets/adesh-yash.png'; }}
             />
           </div>
           <div className="flex-1 min-w-0 text-center md:text-left">
@@ -65,7 +66,12 @@ export default function Footer() {
         <div className="md:col-span-2">
           <div className="flex items-center gap-3">
             <span className="logo-frame">
-              <img src={LOGO_URL} alt="BITVERSE" className="w-16 h-16 object-contain block" />
+              <img
+                src={LOGO_URL}
+                alt="BITVERSE"
+                className="w-16 h-16 object-contain block"
+                onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
+              />
             </span>
             <span className="font-display text-2xl font-bold tracking-wider">
               BIT<span className="text-[#00E5D4]">VERSE</span>

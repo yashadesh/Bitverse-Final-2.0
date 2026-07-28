@@ -39,7 +39,12 @@ export default function AdminLogin() {
       <div className="w-full max-w-md" data-testid="admin-login-page">
         <div className="flex flex-col items-center mb-8">
           <span className="logo-frame mb-4">
-            <img src={LOGO_URL} alt="BITVERSE" className="w-16 h-16 object-contain block" />
+            <img
+              src={LOGO_URL}
+              alt="BITVERSE"
+              className="w-16 h-16 object-contain block"
+              onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
+            />
           </span>
           <div className="chip mb-3"><Shield className="w-3 h-3" /> Admin Access</div>
           <h1 className="font-display text-3xl md:text-4xl font-bold tracking-tighter text-center">

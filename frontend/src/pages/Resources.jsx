@@ -3,6 +3,7 @@ import { API } from "@/lib/api";
 import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import FileCard from "@/components/FileCard";
+import { BookAccordionSkeleton } from "@/components/Skeletons";
 import { useSubjects, useFiles, useResources } from "@/hooks/useQueries";
 import { BookOpen, ExternalLink, ChevronDown } from "lucide-react";
 
@@ -13,6 +14,8 @@ export default function Resources() {
   const sem2Query = useSubjects(2);
   const booksQuery = useFiles({ category: "book" });
   const bookLinksQuery = useResources("book");
+
+  const isLoading = sem1Query.isLoading || sem2Query.isLoading || booksQuery.isLoading || bookLinksQuery.isLoading;
 
   const subjects = useMemo(() => {
     return [...(sem1Query.data || []), ...(sem2Query.data || [])];
@@ -54,7 +57,10 @@ export default function Resources() {
       />
 
       <div className="mt-10 space-y-4">
-        {order.map((sid) => {
+        {isLoading && Array.from({ length: 6 }).map((_, i) => (
+          <BookAccordionSkeleton key={i} />
+        ))}
+        {!isLoading && order.map((sid) => {
           const g = grouped[sid];
           if (!g) return null;
           const total = g.files.length + g.links.length;

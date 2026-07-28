@@ -2,6 +2,7 @@ import { useParams, Link } from "react-router-dom";
 import { useSubjects } from "@/hooks/useQueries";
 import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { SubjectCardSkeleton } from "@/components/Skeletons";
 import { ChevronRight, FlaskConical, Atom, Cpu, Sigma, Cog, Ruler, Wrench, HeartHandshake, Dna, Code2, Zap, MessageSquare, Radiation, Dumbbell, Leaf } from "lucide-react";
 
 const ICONS = {
@@ -52,7 +53,7 @@ export default function SemesterPage() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-12">
         {loading && Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="card-glass p-6 h-32 animate-pulse opacity-50" />
+          <SubjectCardSkeleton key={i} />
         ))}
         {subjects.map((s, i) => {
           const Icon = ICONS[s.name] || Atom;

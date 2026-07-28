@@ -1,4 +1,6 @@
 import axios from 'axios';
+import logoImg from '../assets/bitverse-logo.png';
+import devImg from '../assets/adesh-yash.png';
 
 // 1. Dynamically manage the API production link or switch to local server
 const API_BASE_URL = 
@@ -6,9 +8,9 @@ const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || 
   '/api';
 
-// 2. Export the static local paths for assets
-export const LOGO_URL = '/assets/bitverse-logo.png';
-export const DEV_PHOTO_URL = '/assets/adesh-yash.png';
+// 2. Export Webpack bundled image assets with static path fallbacks
+export const LOGO_URL = logoImg || '/assets/bitverse-logo.png';
+export const DEV_PHOTO_URL = devImg || '/assets/adesh-yash.png';
 
 // 3. Configure the Axios connection instance
 export const api = axios.create({

@@ -5,6 +5,7 @@ import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import FileCard from "@/components/FileCard";
 import PaginatedList from "@/components/PaginatedList";
+import { FileCardSkeleton } from "@/components/Skeletons";
 import { useSubject, useFiles } from "@/hooks/useQueries";
 import { ArrowLeft } from "lucide-react";
 
@@ -19,7 +20,7 @@ export default function PYQSubject() {
   const [tab, setTab] = useState("mid");
 
   const { data: subject } = useSubject(subjectId);
-  const { data: rawFiles } = useFiles({ category: "pyq", subject_id: subjectId, pyq_type: tab });
+  const { data: rawFiles, isLoading: filesLoading } = useFiles({ category: "pyq", subject_id: subjectId, pyq_type: tab });
   const files = Array.isArray(rawFiles) ? rawFiles : [];
 
   return (
@@ -58,16 +59,24 @@ export default function PYQSubject() {
       </div>
 
       <div className="mt-8">
-        <PaginatedList
-          items={files}
-          testId="pyq-files-list"
-          renderItem={(f) => <FileCard key={f.id} file={f} apiBase={API} />}
-          emptyState={
-            <div className="card-glass p-10 text-center text-white/60">
-              No {TABS.find((t) => t.key === tab)?.label || "matching"} papers uploaded yet.
-            </div>
-          }
-        />
+        {filesLoading ? (
+          <div className="space-y-3">
+            <FileCardSkeleton />
+            <FileCardSkeleton />
+            <FileCardSkeleton />
+          </div>
+        ) : (
+          <PaginatedList
+            items={files}
+            testId="pyq-files-list"
+            renderItem={(f) => <FileCard key={f.id} file={f} apiBase={API} />}
+            emptyState={
+              <div className="card-glass p-10 text-center text-white/60">
+                No {TABS.find((t) => t.key === tab)?.label || "matching"} papers uploaded yet.
+              </div>
+            }
+          />
+        )}
       </div>
     </div>
   );

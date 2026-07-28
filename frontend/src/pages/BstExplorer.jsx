@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Sparkles, Search, Play, Award, GraduationCap, RefreshCw, Layers, ArrowRight, HelpCircle } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { TreeSkeleton } from "@/components/Skeletons";
 import { useSubjects } from "@/hooks/useQueries";
 import { toast } from "sonner";
 
@@ -328,9 +329,8 @@ export default function BstExplorer() {
       )}
 
       {loading ? (
-        <div className="min-h-[400px] flex items-center justify-center text-white/60">
-          <RefreshCw className="w-6 h-6 text-[#00E5D4] animate-spin mr-3" />
-          Mapping the syllabus universe...
+        <div className="mt-8">
+          <TreeSkeleton />
         </div>
       ) : (
         <div className="grid gap-6 lg:grid-cols-12 mt-8 items-start">

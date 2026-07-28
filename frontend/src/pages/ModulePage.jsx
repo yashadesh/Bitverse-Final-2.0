@@ -4,6 +4,7 @@ import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import FileCard from "@/components/FileCard";
 import PaginatedList from "@/components/PaginatedList";
+import { HeaderSkeleton, FileCardSkeleton } from "@/components/Skeletons";
 import { useModule, useSubject, useFiles } from "@/hooks/useQueries";
 import { ArrowLeft, FileX2 } from "lucide-react";
 
@@ -18,7 +19,7 @@ export default function ModulePage() {
 
   if (loading) {
     return (
-      <div className="page-enter mx-auto max-w-6xl px-6 pt-28 md:pt-32 animate-pulse">
+      <div className="page-enter mx-auto max-w-6xl px-6 pt-28 md:pt-32">
         <Breadcrumbs 
           items={[
             { label: "Notes Hub", path: "/notes" },
@@ -32,24 +33,12 @@ export default function ModulePage() {
         </div>
         
         {/* Header Skeleton */}
-        <div className="space-y-4">
-          <div className="h-6 w-32 bg-white/5 rounded-full border border-white/10" />
-          <div className="h-10 md:h-12 w-2/3 max-w-md bg-white/10 rounded-2xl animate-pulse" />
-          <div className="h-4 w-1/2 max-w-sm bg-white/5 rounded-lg" />
-        </div>
+        <HeaderSkeleton />
 
         {/* Files List Skeleton */}
         <div className="mt-10 space-y-3">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="card-glass p-5 flex items-center justify-between h-20">
-              <div className="flex items-center gap-3 w-full animate-pulse">
-                <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 w-1/3 bg-white/10 rounded" />
-                  <div className="h-3 w-1/4 bg-white/5 rounded" />
-                </div>
-              </div>
-            </div>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <FileCardSkeleton key={i} />
           ))}
         </div>
       </div>

@@ -80,6 +80,7 @@ export default function Home() {
               alt="BITVERSE — Student Notes Library"
               className="w-48 h-48 md:w-64 md:h-64 object-contain block animate-pulse-glow"
               data-testid="hero-logo"
+              onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
             />
           </span>
         </div>

@@ -28,6 +28,7 @@ export default function About() {
               src={LOGO_URL}
               alt="BITVERSE — Student Notes Library"
               className="w-36 h-36 md:w-44 md:h-44 object-contain block"
+              onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
             />
           </span>
           <p className="text-[#B0B8C5] leading-relaxed">

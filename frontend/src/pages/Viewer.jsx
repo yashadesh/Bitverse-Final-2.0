@@ -93,7 +93,12 @@ export default function Viewer() {
             <ArrowLeft className="w-5 h-5 text-white/80" />
           </button>
           <span className="logo-frame shrink-0">
-            <img src={LOGO_URL} alt="BITVERSE" className="w-8 h-8 md:w-9 md:h-9 object-contain block" />
+            <img
+              src={LOGO_URL}
+              alt="BITVERSE"
+              className="w-8 h-8 md:w-9 md:h-9 object-contain block"
+              onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
+            />
           </span>
           <div className="min-w-0">
             <div className="text-white text-xs md:text-sm font-medium truncate">{f.display_name}</div>

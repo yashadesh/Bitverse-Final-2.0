@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { SubjectCardSkeleton, FileCardSkeleton } from "@/components/Skeletons";
 import { useSubjects } from "@/hooks/useQueries";
 import { api, API } from "@/lib/api";
 
@@ -131,7 +132,11 @@ export default function NotesHub() {
         {query.trim() && (
           <div className="mt-4 p-5 bg-[#0D1117]/95 border border-white/10 rounded-2xl shadow-2xl backdrop-blur-xl z-20 relative max-h-[480px] overflow-y-auto space-y-5" data-testid="search-results">
             {loading && !results && (
-              <div className="text-center py-10 text-white/50 text-sm">Searching the digital universe...</div>
+              <div className="space-y-3 py-2">
+                <FileCardSkeleton />
+                <FileCardSkeleton />
+                <FileCardSkeleton />
+              </div>
             )}
 
             {!loading && !hasResults && (
@@ -253,7 +258,7 @@ export default function NotesHub() {
       {/* SUBJECTS GRID */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-8 mb-16">
         {subjectsLoading && Array.from({ length: 9 }).map((_, i) => (
-          <div key={i} className="card-glass p-6 h-32 animate-pulse opacity-50" />
+          <SubjectCardSkeleton key={i} />
         ))}
         {!subjectsLoading && subjects
           .filter((s) => selectedSem === "all" || String(s.semester) === selectedSem)

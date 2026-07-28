@@ -28,6 +28,7 @@ export default function Navbar() {
                 src={LOGO_URL}
                 alt="BITVERSE"
                 className="w-11 h-11 object-contain block"
+                onError={(e) => { e.currentTarget.src = '/assets/bitverse-logo.png'; }}
               />
             </span>
             <span className="font-display text-lg font-bold tracking-wider">

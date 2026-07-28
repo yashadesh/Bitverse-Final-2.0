@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 import { useSubjects } from "@/hooks/useQueries";
 import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { SubjectCardSkeleton } from "@/components/Skeletons";
 import { FileText, ChevronRight } from "lucide-react";
 
 export default function PYQsHub() {
   const sem1Query = useSubjects(1);
   const sem2Query = useSubjects(2);
+
+  const isLoading = sem1Query.isLoading || sem2Query.isLoading;
 
   const subjects = useMemo(() => {
     return [...(sem1Query.data || []), ...(sem2Query.data || [])];
@@ -23,7 +26,10 @@ export default function PYQsHub() {
         testid="pyqs-hub-header"
       />
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-12">
-        {subjects.map((s, i) => (
+        {isLoading && Array.from({ length: 6 }).map((_, i) => (
+          <SubjectCardSkeleton key={i} />
+        ))}
+        {!isLoading && subjects.map((s, i) => (
           <Link
             key={s.id}
             to={`/pyqs/subject/${s.id}`}
