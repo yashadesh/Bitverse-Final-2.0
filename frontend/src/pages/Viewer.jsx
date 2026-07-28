@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api, API, LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
-import { ExternalLink, ArrowLeft, Loader2 } from "lucide-react";
+import { api, API, LOGO_URL, BUNDLED_LOGO_URL, handleImgError, calcReadTime } from "@/lib/api";
+import { ExternalLink, ArrowLeft, Loader2, Clock } from "lucide-react";
 import DocumentViewer from "@/components/DocumentViewer";
 
 const isMobile = () =>
@@ -102,8 +102,12 @@ export default function Viewer() {
           </span>
           <div className="min-w-0">
             <div className="text-white text-xs md:text-sm font-medium truncate">{f.display_name}</div>
-            <div className="text-[9px] md:text-[10px] font-mono text-white/50 uppercase tracking-widest">
-              {ext} · BITVERSE Secure Viewer
+            <div className="text-[9px] md:text-[10px] font-mono text-white/50 uppercase tracking-widest flex items-center gap-2">
+              <span>{ext} · BITVERSE SECURE VIEWER</span>
+              <span>·</span>
+              <span className="text-[#00E5D4] flex items-center gap-1 font-sans text-xs font-semibold">
+                <Clock className="w-3 h-3" /> {calcReadTime(f)}
+              </span>
             </div>
           </div>
         </div>

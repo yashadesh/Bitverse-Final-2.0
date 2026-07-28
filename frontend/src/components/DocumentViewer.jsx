@@ -9,8 +9,10 @@ import {
   Loader2, 
   X,
   Maximize2,
-  Minimize2
+  Minimize2,
+  Clock
 } from "lucide-react";
+import { calcReadTime } from "@/lib/api";
 
 // Configure GlobalWorkerOptions using local endpoint or CDN worker for react-pdf 7.x
 pdfjs.GlobalWorkerOptions.workerSrc = typeof window !== "undefined"
@@ -97,9 +99,13 @@ export default function DocumentViewer({ fileUrl, onClose, title = "Document Vie
         <div className="flex items-center gap-3 min-w-0">
           <div className="min-w-0">
             <h3 className="text-white text-xs md:text-sm font-medium truncate">{title}</h3>
-            <p className="text-[9px] md:text-[10px] font-mono text-[#00E5D4] uppercase tracking-widest">
-              BITVERSE SECURE VIEWER · SECURE READING MODE
-            </p>
+            <div className="flex items-center gap-2 text-[9px] md:text-[10px] font-mono text-[#00E5D4] uppercase tracking-widest mt-0.5">
+              <span>BITVERSE SECURE VIEWER</span>
+              <span>·</span>
+              <span className="flex items-center gap-1 font-sans text-xs font-semibold text-[#00E5D4] bg-[#00E5D4]/10 px-1.5 py-0.5 rounded border border-[#00E5D4]/25">
+                <Clock className="w-3 h-3" /> {calcReadTime({ display_name: title })}
+              </span>
+            </div>
           </div>
         </div>
 

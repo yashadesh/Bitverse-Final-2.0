@@ -494,6 +494,14 @@ app.use((req, res, next) => {
 // API Router
 const apiRouter = express.Router();
 
+// Add Cache-Control headers for read-only GET requests to accelerate site opening and page navigation
+apiRouter.use((req, res, next) => {
+  if (req.method === 'GET' && !req.path.startsWith('/auth') && !req.path.startsWith('/admin')) {
+    res.setHeader('Cache-Control', 'public, max-age=15, stale-while-revalidate=120');
+  }
+  next();
+});
+
 // Meta / Health Check
 apiRouter.get("/", (req, res) => {
   res.json({ app: "BITVERSE", tagline: "The Digital Universe of BIT Mesra" });
@@ -1516,6 +1524,83 @@ apiRouter.post("/homepage", requireAdmin, multer().none(), async (req, res) => {
   }
 });
 
+apiRouter.get("/admin/branding-assets", requireAdmin, async (req, res) => {
+  try {
+    const logoPublicPath = path.join(process.cwd(), 'frontend', 'public', 'assets', 'bitverse-logo.png');
+    const devPublicPath = path.join(process.cwd(), 'frontend', 'public', 'assets', 'adesh-yash.png');
+
+    const logoInfo = fs.existsSync(logoPublicPath) ? {
+      exists: true,
+      size: fs.statSync(logoPublicPath).size,
+      updated_at: fs.statSync(logoPublicPath).mtime,
+      url: `/assets/bitverse-logo.png?v=${Date.now()}`
+    } : { exists: false, url: '/assets/bitverse-logo.png' };
+
+    const devInfo = fs.existsSync(devPublicPath) ? {
+      exists: true,
+      size: fs.statSync(devPublicPath).size,
+      updated_at: fs.statSync(devPublicPath).mtime,
+      url: `/assets/adesh-yash.png?v=${Date.now()}`
+    } : { exists: false, url: '/assets/adesh-yash.png' };
+
+    res.json({
+      logo: logoInfo,
+      devPhoto: devInfo
+    });
+  } catch (err) {
+    res.status(500).json({ detail: err.message });
+  }
+});
+
+apiRouter.post("/admin/upload-branding-asset", requireAdmin, upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ detail: "Please select an image file to upload." });
+    }
+
+    const assetType = req.body.asset_type || "logo"; // "logo" or "dev_photo"
+    const targetBaseName = assetType === "dev_photo" ? "adesh-yash" : "bitverse-logo";
+
+    const dirsToSave = [
+      path.join(process.cwd(), 'frontend', 'public', 'assets'),
+      path.join(process.cwd(), 'frontend', 'src', 'assets'),
+      path.join(process.cwd(), 'frontend', 'build', 'assets')
+    ];
+
+    const ext = path.extname(req.file.originalname).toLowerCase() || '.png';
+
+    for (const dir of dirsToSave) {
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+
+      // Always write to standard .png target
+      fs.writeFileSync(path.join(dir, `${targetBaseName}.png`), req.file.buffer);
+
+      // If uploaded file had a different extension (e.g. .jpg, .webp, .jpeg), save it as well
+      if (ext !== '.png') {
+        fs.writeFileSync(path.join(dir, `${targetBaseName}${ext}`), req.file.buffer);
+      }
+    }
+
+    // Save activity log entry
+    await dbService.collection("activity_log").insertOne({
+      id: crypto.randomUUID(),
+      description: `Admin uploaded new ${assetType === "dev_photo" ? "Developer Profile Photo" : "BITVERSE Brand Logo"}`,
+      time: new Date().toISOString()
+    });
+
+    res.json({
+      success: true,
+      asset_type: assetType,
+      message: `${assetType === "dev_photo" ? "Developer Profile Photo" : "BITVERSE Brand Logo"} updated successfully!`
+    });
+  } catch (err) {
+    console.error("Branding asset upload error:", err);
+    res.status(500).json({ detail: err.message });
+  }
+});
+
 apiRouter.get("/admin/storage-status", requireAdmin, async (req, res) => {
   try {
     const filesCol = dbService.collection("files");
@@ -1888,9 +1973,62 @@ app.get('*', (req, res) => {
   }
 });
 
-// Self-Ping Keep-Alive Job (Prevents Render spin-down by self-pinging every 10 minutes)
+// Pre-warm in-memory cache for ultra-fast site opening response times (< 5ms)
+async function warmupCache() {
+  try {
+    console.log("[Cache Warmup] Pre-warming initial API caches for lightning fast site opening...");
+    const filesCol = dbService.collection("files");
+    const subjectsCol = dbService.collection("subjects");
+    const modulesCol = dbService.collection("modules");
+    const resourcesCol = dbService.collection("resources");
+
+    if (subjectsCol) {
+      const allSubjects = await subjectsCol.find({}).sort({ semester: 1, name: 1 }).toArray();
+      cache.set("subjects_all", allSubjects, 300);
+      cache.set("subjects_1", allSubjects.filter(s => s.semester === 1), 300);
+      cache.set("subjects_2", allSubjects.filter(s => s.semester === 2), 300);
+    }
+
+    if (filesCol && subjectsCol && modulesCol && resourcesCol) {
+      const notesCount = await filesCol.countDocuments({ category: "notes", is_deleted: { $ne: true } });
+      const pyqsCount = await filesCol.countDocuments({ category: "pyq", is_deleted: { $ne: true } });
+      const syllabusCount = await filesCol.countDocuments({ category: "syllabus", is_deleted: { $ne: true } });
+      const tutorialCount = await filesCol.countDocuments({ category: "tutorial", is_deleted: { $ne: true } });
+      const bookFileCount = await filesCol.countDocuments({ category: "book", is_deleted: { $ne: true } });
+      const subjectsCount = await subjectsCol.countDocuments({});
+      const modulesCount = await modulesCol.countDocuments({});
+      const resourcesCount = await resourcesCol.countDocuments({});
+      const filesList = await filesCol.find({ is_deleted: { $ne: true } }, { projection: { size: 1 } }).toArray();
+      const totalStorageBytes = filesList.reduce((acc, f) => acc + (parseInt(f.size) || 0), 0);
+      const recentUploads = await filesCol.find({ is_deleted: { $ne: true } }, { projection: { file_data_b64: 0 } })
+        .sort({ created_at: -1 })
+        .limit(5)
+        .toArray();
+
+      const statsData = {
+        notesCount,
+        pyqsCount,
+        syllabusCount,
+        tutorialCount,
+        bookFileCount,
+        subjectsCount,
+        modulesCount,
+        resourcesCount,
+        totalPdfFiles: notesCount + pyqsCount + syllabusCount + tutorialCount + bookFileCount,
+        totalStorageBytes,
+        recentUploads
+      };
+      cache.set("stats", statsData, 300);
+    }
+    console.log("[Cache Warmup] Initial API caches pre-warmed successfully!");
+  } catch (err) {
+    console.warn("[Cache Warmup] Failed to pre-warm cache:", err.message);
+  }
+}
+
+// Self-Ping Keep-Alive Job (Prevents Render / Cloud Run spin-down by self-pinging every 3 minutes)
 function startSelfPingJob() {
-  const TEN_MINUTES = 10 * 60 * 1000;
+  const THREE_MINUTES = 3 * 60 * 1000;
   setInterval(async () => {
     const targetUrl = lastKnownExternalUrl || process.env.RENDER_EXTERNAL_URL;
     if (!targetUrl) {
@@ -1910,7 +2048,7 @@ function startSelfPingJob() {
     } catch (err) {
       console.error("[Keep-Alive] Self-ping request failed:", err.message);
     }
-  }, TEN_MINUTES);
+  }, THREE_MINUTES);
 }
 
 // Startup Lifecycle
@@ -1919,6 +2057,7 @@ async function startServer() {
   await seedAdmin();
   await seedIfEmpty();
   await autoCleanupDatabase();
+  await warmupCache();
 
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);

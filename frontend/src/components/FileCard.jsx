@@ -1,4 +1,5 @@
-import { Eye, FileText, FileImage, Presentation, FileType2 } from "lucide-react";
+import { Eye, FileText, FileImage, Presentation, FileType2, Clock } from "lucide-react";
+import { calcReadTime } from "@/lib/api";
 
 function iconFor(name) {
   const ext = (name || "").split(".").pop()?.toLowerCase();
@@ -64,10 +65,18 @@ export default function FileCard({ file, apiBase }) {
         aria-label="View file"
       >
         <div className="font-medium text-white truncate group-hover:text-[#00E5D4] transition-colors">{file.display_name}</div>
-        <div className="text-xs text-white/50 font-mono mt-0.5 flex gap-3">
+        <div className="text-xs text-white/50 font-mono mt-0.5 flex flex-wrap items-center gap-2 sm:gap-2.5">
           <span>{fmtDate(file.created_at)}</span>
+          {file.size ? (
+            <>
+              <span>·</span>
+              <span>{fmtSize(file.size)}</span>
+            </>
+          ) : null}
           <span>·</span>
-          <span>{fmtSize(file.size)}</span>
+          <span className="inline-flex items-center gap-1 text-[#00E5D4] bg-[#00E5D4]/10 border border-[#00E5D4]/25 px-1.5 py-0.5 rounded text-[11px] font-sans font-medium" title="Estimated reading time for student study planning">
+            <Clock className="w-3 h-3 text-[#00E5D4]" /> {calcReadTime(file)}
+          </span>
         </div>
       </a>
       <div className="flex items-center gap-2">

@@ -27,6 +27,51 @@ export const handleImgError = (e, fallbackPath, bundledFallback) => {
   }
 };
 
+/**
+ * Calculates estimated study reading time for note resources based on content size,
+ * file category, and academic density.
+ */
+export function calcReadTime(file) {
+  if (!file) return "~2 min read";
+  if (file.read_time_mins || file.estimated_read_time) {
+    const mins = file.read_time_mins || file.estimated_read_time;
+    return `~${mins} min${mins > 1 ? 's' : ''} read`;
+  }
+
+  const sizeKb = ((file.size || 0) / 1024);
+  const filename = (file.original_filename || file.display_name || "").toLowerCase();
+
+  if (sizeKb <= 0) {
+    if (filename.includes("syllabus") || filename.includes("overview")) return "~3 min read";
+    if (filename.includes("module") || filename.includes("unit") || filename.includes("chapter")) return "~15 min read";
+    if (filename.includes("pyq") || filename.includes("paper") || filename.includes("question")) return "~10 min read";
+    return "~5 min read";
+  }
+
+  let minutes = 1;
+
+  if (sizeKb < 40) {
+    minutes = 2; // Short note / summary sheet
+  } else if (sizeKb < 150) {
+    minutes = 5; // Concise module summary / topic sheet
+  } else if (sizeKb < 500) {
+    minutes = 10; // Full module notes / lecture slide deck
+  } else if (sizeKb < 1500) {
+    minutes = 20; // Multi-topic comprehensive notes
+  } else if (sizeKb < 4000) {
+    minutes = 35; // Complete subject notes / formula book
+  } else {
+    // Large textbook or full course packet
+    minutes = Math.min(120, Math.round(35 + (sizeKb - 4000) / 300));
+  }
+
+  if (minutes < 60) {
+    return `~${minutes} min read`;
+  }
+  const hours = (minutes / 60).toFixed(1);
+  return `~${hours} hr read`;
+}
+
 // 3. Configure the Axios connection instance
 export const api = axios.create({
   baseURL: API_BASE_URL,

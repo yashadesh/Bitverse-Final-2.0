@@ -5,7 +5,7 @@ import { useAuth } from "@/lib/auth";
 import PageHeader from "@/components/PageHeader";
 import {
   Upload, Plus, Trash2, FileText, FolderPlus, LinkIcon, BookOpen, FileArchive, GraduationCap, LogOut, ShieldCheck, ScrollText, Sparkles, BarChart2, Edit, LayoutDashboard,
-  FolderOpen, UploadCloud, CheckCircle2, Loader2, Database, HardDrive, AlertTriangle
+  FolderOpen, UploadCloud, CheckCircle2, Loader2, Database, HardDrive, AlertTriangle, Image
 } from "lucide-react";
 
 const TABS = [
@@ -20,7 +20,8 @@ const TABS = [
   { key: "announcements", label: "Announcements", Icon: ScrollText },
   { key: "homepage", label: "Homepage Hero", Icon: Sparkles },
   { key: "analytics", label: "Analytics", Icon: BarChart2 },
-  { key: "storage", label: "Cloud & Storage", Icon: Database }
+  { key: "storage", label: "Cloud & Storage", Icon: Database },
+  { key: "branding", label: "Logo & Developer Photo", Icon: Image }
 ];
 
 const DIRECT_FILE_SUBJECTS = new Set([
@@ -143,8 +144,11 @@ export default function Admin() {
         {tab === "storage" && (
           <ManageStorage />
         )}
+        {tab === "branding" && (
+          <ManageBranding />
+        )}
 
-        {tab !== "overview" && tab !== "book" && tab !== "announcements" && tab !== "homepage" && tab !== "analytics" && tab !== "folder" && tab !== "storage" && (
+        {tab !== "overview" && tab !== "book" && tab !== "announcements" && tab !== "homepage" && tab !== "analytics" && tab !== "folder" && tab !== "storage" && tab !== "branding" && (
           <ListFiles files={files} tab={tab} refresh={loadAll} />
         )}
         {tab === "book" && <ListResources resources={resources} refresh={loadAll} />}
@@ -1751,6 +1755,198 @@ function ManageStorage() {
           </p>
         </div>
       </GlassBox>
+    </div>
+  );
+}
+
+function ManageBranding() {
+  const [branding, setBranding] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [uploadingDev, setUploadingDev] = useState(false);
+  const [logoFile, setLogoFile] = useState(null);
+  const [devFile, setDevFile] = useState(null);
+
+  const fetchBranding = async () => {
+    try {
+      const { data } = await api.get("/admin/branding-assets");
+      setBranding(data);
+    } catch {
+      toast.error("Failed to load branding assets status");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBranding();
+  }, []);
+
+  const handleUpload = async (assetType) => {
+    const fileToUpload = assetType === "dev_photo" ? devFile : logoFile;
+    if (!fileToUpload) {
+      return toast.error("Please select an image file first");
+    }
+
+    if (assetType === "dev_photo") setUploadingDev(true);
+    else setUploadingLogo(true);
+
+    try {
+      const fd = new FormData();
+      fd.append("asset_type", assetType);
+      fd.append("file", fileToUpload);
+
+      const { data } = await api.post("/admin/upload-branding-asset", fd);
+      toast.success(data.message || "Asset uploaded successfully!");
+
+      if (assetType === "dev_photo") setDevFile(null);
+      else setLogoFile(null);
+
+      fetchBranding();
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Failed to upload image");
+    } finally {
+      if (assetType === "dev_photo") setUploadingDev(false);
+      else setUploadingLogo(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="lg:col-span-2 flex flex-col items-center justify-center py-20">
+        <Loader2 className="w-8 h-8 text-[#00E5D4] animate-spin mb-3" />
+        <div className="text-white/60 font-mono text-xs">Loading Branding Assets...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 lg:col-span-2">
+      <div className="p-4 bg-[#0D1117]/80 border border-white/10 rounded-2xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <div className="text-xs font-mono text-white/50 uppercase tracking-widest">Brand & Developer Asset Manager</div>
+          <div className="text-lg font-bold text-white flex items-center gap-2 mt-1">
+            <Image className="w-5 h-5 text-[#00E5D4]" /> Upload & Customize Brand Logo & Developer Photo
+          </div>
+        </div>
+        <div className="text-xs font-mono text-white/60 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+          Instant Live Update Across App
+        </div>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        {/* BITVERSE Logo Upload Card */}
+        <GlassBox title="BITVERSE Brand Logo (Navbar, Hero, Footer, Viewer)" testid="admin-logo-upload-box">
+          <div className="space-y-5">
+            <div className="flex flex-col items-center justify-center p-6 bg-[#05070A]/80 border border-white/10 rounded-2xl">
+              <div className="text-xs font-mono text-white/50 uppercase tracking-wider mb-3">Current App Logo</div>
+              <div className="relative w-28 h-28 flex items-center justify-center bg-black/40 rounded-2xl p-2 border border-[#00E5D4]/30 shadow-[0_0_20px_rgba(0,229,212,0.15)]">
+                <img
+                  src={branding?.logo?.url || "/assets/bitverse-logo.png"}
+                  alt="BITVERSE Logo Preview"
+                  className="w-full h-full object-contain"
+                  onError={(e) => { e.currentTarget.src = "/assets/bitverse-logo.png"; }}
+                />
+              </div>
+              <div className="text-[11px] font-mono text-white/40 mt-3">
+                {branding?.logo?.size ? `${Math.round(branding.logo.size / 1024)} KB` : "Standard PNG"} · Saved to /assets/bitverse-logo.png
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-white/80 block mb-2">Upload New Logo Image</label>
+              <div className="border-2 border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center text-center bg-[#0D1117]/45 hover:border-[#00E5D4]/40 hover:bg-[#00E5D4]/5 transition group relative cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  onChange={(e) => setLogoFile(e.target.files[0])}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  disabled={uploadingLogo}
+                />
+                <UploadCloud className="w-8 h-8 text-white/40 group-hover:text-[#00E5D4] group-hover:scale-105 transition mb-2" />
+                <div className="text-xs font-semibold text-white/80 group-hover:text-white">
+                  {logoFile ? logoFile.name : "Click or Drag & Drop new logo image..."}
+                </div>
+                <div className="text-[10px] text-white/45 font-mono uppercase mt-1">PNG, JPG, WEBP, or SVG</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleUpload("logo")}
+              disabled={uploadingLogo || !logoFile}
+              className="w-full btn-neon primary py-3 flex items-center justify-center gap-2"
+            >
+              {uploadingLogo ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Saving & Applying Logo...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                  <span>Upload & Apply Logo</span>
+                </>
+              )}
+            </button>
+          </div>
+        </GlassBox>
+
+        {/* Developer / Built By Photo Upload Card */}
+        <GlassBox title="Developer Profile Photo (Footer & About Page)" testid="admin-dev-photo-upload-box">
+          <div className="space-y-5">
+            <div className="flex flex-col items-center justify-center p-6 bg-[#05070A]/80 border border-white/10 rounded-2xl">
+              <div className="text-xs font-mono text-white/50 uppercase tracking-wider mb-3">Current Profile Photo</div>
+              <div className="relative w-28 h-28 rounded-full overflow-hidden border-2 border-[#00E5D4]/60 shadow-[0_0_25px_rgba(0,229,212,0.3)]">
+                <img
+                  src={branding?.devPhoto?.url || "/assets/adesh-yash.png"}
+                  alt="Developer Photo Preview"
+                  className="w-full h-full object-cover"
+                  onError={(e) => { e.currentTarget.src = "/assets/adesh-yash.png"; }}
+                />
+              </div>
+              <div className="text-[11px] font-mono text-white/40 mt-3">
+                {branding?.devPhoto?.size ? `${Math.round(branding.devPhoto.size / 1024)} KB` : "Standard PNG"} · Saved to /assets/adesh-yash.png
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-white/80 block mb-2">Upload New Profile Photo</label>
+              <div className="border-2 border-dashed border-white/10 rounded-2xl p-6 flex flex-col items-center justify-center text-center bg-[#0D1117]/45 hover:border-[#00E5D4]/40 hover:bg-[#00E5D4]/5 transition group relative cursor-pointer">
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={(e) => setDevFile(e.target.files[0])}
+                  className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+                  disabled={uploadingDev}
+                />
+                <UploadCloud className="w-8 h-8 text-white/40 group-hover:text-[#00E5D4] group-hover:scale-105 transition mb-2" />
+                <div className="text-xs font-semibold text-white/80 group-hover:text-white">
+                  {devFile ? devFile.name : "Click or Drag & Drop new photo..."}
+                </div>
+                <div className="text-[10px] text-white/45 font-mono uppercase mt-1">PNG, JPG, or WEBP (Square / Circle)</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => handleUpload("dev_photo")}
+              disabled={uploadingDev || !devFile}
+              className="w-full btn-neon primary py-3 flex items-center justify-center gap-2"
+            >
+              {uploadingDev ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <span>Saving & Applying Photo...</span>
+                </>
+              ) : (
+                <>
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                  <span>Upload & Apply Developer Photo</span>
+                </>
+              )}
+            </button>
+          </div>
+        </GlassBox>
+      </div>
     </div>
   );
 }
