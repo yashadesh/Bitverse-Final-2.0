@@ -4,10 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build:frontend": "cd frontend && npm install --include=dev && npm run build",
+    "build:frontend": "npm --prefix frontend install --include=dev && npm --prefix frontend run build",
     "dev": "npm run build && node server.js",
-    "build": "cd frontend && npm install --include=dev && npm run build",
-    "deploy:cloudflare": "cd frontend && npm install && npm run build && wrangler pages deploy dist",
+    "build": "npm install && npm --prefix frontend install --include=dev && npm --prefix frontend run build",
+    "deploy:cloudflare": "npm --prefix frontend install && npm --prefix frontend run build && wrangler pages deploy frontend/dist",
     "start": "node server.js",
     "lint": "echo 'No lint script required'"
   },
