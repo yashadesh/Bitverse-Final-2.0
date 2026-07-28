@@ -1,5 +1,9 @@
 const path = require("path");
-require("dotenv").config();
+try {
+  require("dotenv").config();
+} catch (e) {
+  // dotenv is optional in production build environments
+}
 
 // Check if we're in development/preview mode (not production build)
 // Craco sets NODE_ENV=development for start, NODE_ENV=production for build
