@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
-import { LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
+import { useBrandingUrls, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
 import { Shield, Lock, Mail, Eye, EyeOff, LogIn } from "lucide-react";
 
 function formatDetail(detail) {
@@ -13,6 +13,7 @@ function formatDetail(detail) {
 
 export default function AdminLogin() {
   const { login } = useAuth();
+  const { logoUrl } = useBrandingUrls();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -40,7 +41,7 @@ export default function AdminLogin() {
         <div className="flex flex-col items-center mb-8">
           <span className="logo-frame mb-4">
             <img
-              src={LOGO_URL}
+              src={logoUrl}
               alt="BITVERSE"
               className="w-16 h-16 object-contain block"
               onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}

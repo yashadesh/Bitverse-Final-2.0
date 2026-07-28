@@ -1,5 +1,5 @@
 import { NavLink, Link, useLocation } from "react-router-dom";
-import { LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
+import { useBrandingUrls, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
 import { Shield } from "lucide-react";
 
 const links = [
@@ -13,6 +13,7 @@ const links = [
 
 export default function Navbar() {
   const loc = useLocation();
+  const { logoUrl } = useBrandingUrls();
 
   if (loc.pathname.startsWith("/viewer")) return null;
   return (
@@ -25,7 +26,7 @@ export default function Navbar() {
           <Link to="/" className="flex items-center gap-3 group" data-testid="nav-logo">
             <span className="logo-frame">
               <img
-                src={LOGO_URL}
+                src={logoUrl}
                 alt="BITVERSE"
                 className="w-11 h-11 object-contain block"
                 onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}

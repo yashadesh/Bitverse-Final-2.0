@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
+import { useBrandingUrls, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
 import TrendingChart from "@/components/TrendingChart";
 import { useStats, useHomepage, useAnnouncements } from "@/hooks/useQueries";
 import {
@@ -47,6 +47,7 @@ export default function Home() {
   const statsQuery = useStats();
   const homepageQuery = useHomepage();
   const announcementsQuery = useAnnouncements();
+  const { logoUrl } = useBrandingUrls();
 
   const stats = {
     files: statsQuery.data?.pdf_files || 0,
@@ -76,7 +77,7 @@ export default function Home() {
           <div className="absolute inset-0 blur-3xl bg-[#00E5D4]/30 rounded-full scale-125" />
           <span className="logo-frame relative" style={{ padding: "10px", borderRadius: "24px" }}>
             <img
-              src={LOGO_URL}
+              src={logoUrl}
               alt="BITVERSE — Student Notes Library"
               className="w-48 h-48 md:w-64 md:h-64 object-contain block animate-pulse-glow"
               data-testid="hero-logo"

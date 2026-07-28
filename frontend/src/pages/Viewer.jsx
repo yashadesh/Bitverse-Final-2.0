@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { api, API, LOGO_URL, BUNDLED_LOGO_URL, handleImgError, calcReadTime } from "@/lib/api";
+import { api, API, useBrandingUrls, BUNDLED_LOGO_URL, handleImgError, calcReadTime } from "@/lib/api";
 import { ExternalLink, ArrowLeft, Loader2, Clock } from "lucide-react";
 import DocumentViewer from "@/components/DocumentViewer";
 
@@ -15,6 +15,7 @@ export default function Viewer() {
   const [f, setF] = useState(null);
   const [error, setError] = useState("");
   const [mobile, setMobile] = useState(false);
+  const { logoUrl } = useBrandingUrls();
 
   useEffect(() => {
     setMobile(isMobile());
@@ -94,7 +95,7 @@ export default function Viewer() {
           </button>
           <span className="logo-frame shrink-0">
             <img
-              src={LOGO_URL}
+              src={logoUrl}
               alt="BITVERSE"
               className="w-8 h-8 md:w-9 md:h-9 object-contain block"
               onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}

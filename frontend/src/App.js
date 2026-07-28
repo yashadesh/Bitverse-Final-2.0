@@ -21,7 +21,13 @@ import Viewer from "@/pages/Viewer";
 import DocumentViewerPage from "@/pages/DocumentViewerPage";
 import BstExplorer from "@/pages/BstExplorer";
 import { useAuth } from "@/lib/auth";
+import { useBootstrapData } from "@/hooks/useQueries";
 import ErrorBoundary from "@/components/ErrorBoundary";
+
+function SiteInitializer() {
+  useBootstrapData();
+  return null;
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -48,6 +54,7 @@ function AdminGate() {
 export default function App() {
   return (
     <div className="App grain" data-testid="app-root">
+      <SiteInitializer />
       <Backdrop />
       <BrowserRouter>
         <ScrollToTop />

@@ -1,7 +1,7 @@
 import React from "react";
 import PageHeader from "@/components/PageHeader";
 import Breadcrumbs from "@/components/Breadcrumbs";
-import { LOGO_URL, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
+import { useBrandingUrls, BUNDLED_LOGO_URL, handleImgError } from "@/lib/api";
 import { Sparkles, Users, ShieldCheck, Zap } from "lucide-react";
 
 const points = [
@@ -12,6 +12,8 @@ const points = [
 ];
 
 export default function About() {
+  const { logoUrl } = useBrandingUrls();
+
   return (
     <div className="page-enter mx-auto max-w-6xl px-6 pt-28 md:pt-32" data-testid="about-page">
       <Breadcrumbs items={[{ label: "About" }]} />
@@ -25,7 +27,7 @@ export default function About() {
         <div className="card-glass p-8 md:p-10 flex flex-col items-start gap-6">
           <span className="logo-frame">
             <img
-              src={LOGO_URL}
+              src={logoUrl}
               alt="BITVERSE — Student Notes Library"
               className="w-36 h-36 md:w-44 md:h-44 object-contain block"
               onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}

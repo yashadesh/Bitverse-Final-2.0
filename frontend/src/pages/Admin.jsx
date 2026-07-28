@@ -10,6 +10,7 @@ import {
 
 const TABS = [
   { key: "overview", label: "Dashboard", Icon: LayoutDashboard },
+  { key: "branding", label: "Logo & Developer Photo", Icon: Image },
   { key: "notes", label: "Notes", Icon: BookOpen },
   { key: "tutorial", label: "Tutorials", Icon: GraduationCap },
   { key: "pyq", label: "PYQs", Icon: FileText },
@@ -20,8 +21,7 @@ const TABS = [
   { key: "announcements", label: "Announcements", Icon: ScrollText },
   { key: "homepage", label: "Homepage Hero", Icon: Sparkles },
   { key: "analytics", label: "Analytics", Icon: BarChart2 },
-  { key: "storage", label: "Cloud & Storage", Icon: Database },
-  { key: "branding", label: "Logo & Developer Photo", Icon: Image }
+  { key: "storage", label: "Cloud & Storage", Icon: Database }
 ];
 
 const DIRECT_FILE_SUBJECTS = new Set([
@@ -102,7 +102,7 @@ export default function Admin() {
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         {tab === "overview" && (
-          <DashboardOverview />
+          <DashboardOverview setTab={setTab} />
         )}
         {tab === "notes" && (
           <UploadNotes subjects={subjects} refresh={loadAll} />
@@ -148,7 +148,7 @@ export default function Admin() {
           <ManageBranding />
         )}
 
-        {tab !== "overview" && tab !== "book" && tab !== "announcements" && tab !== "homepage" && tab !== "analytics" && tab !== "folder" && tab !== "storage" && tab !== "branding" && (
+        {tab !== "overview" && tab !== "book" && tab !== "manage" && tab !== "announcements" && tab !== "homepage" && tab !== "analytics" && tab !== "folder" && tab !== "storage" && tab !== "branding" && (
           <ListFiles files={files} tab={tab} refresh={loadAll} />
         )}
         {tab === "book" && <ListResources resources={resources} refresh={loadAll} />}
@@ -157,7 +157,7 @@ export default function Admin() {
   );
 }
 
-function DashboardOverview() {
+function DashboardOverview({ setTab }) {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -198,6 +198,10 @@ function DashboardOverview() {
 
   return (
     <div className="space-y-6 lg:col-span-2">
+      {/* Brand & Developer Asset Management Section */}
+      <div className="pt-2">
+        <ManageBranding />
+      </div>
       {/* Overview Stats Cards Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="p-5 bg-white/[0.02] border border-white/5 rounded-2xl hover:border-[#00E5D4]/20 transition group">
@@ -1803,6 +1807,7 @@ function ManageBranding() {
       else setLogoFile(null);
 
       fetchBranding();
+      window.dispatchEvent(new Event('branding_updated'));
     } catch (err) {
       toast.error(err.response?.data?.detail || "Failed to upload image");
     } finally {

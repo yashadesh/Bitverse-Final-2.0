@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import logoImg from '../assets/bitverse-logo.png';
 import devImg from '../assets/adesh-yash.png';
@@ -9,11 +10,26 @@ const API_BASE_URL =
   '/api';
 
 // 2. Export live dynamic asset URLs so manual file uploads/replacements reflect instantly
-export const LOGO_URL = '/assets/bitverse-logo.png';
-export const DEV_PHOTO_URL = '/assets/adesh-yash.png';
+export const LOGO_URL = '/api/branding-asset/logo';
+export const DEV_PHOTO_URL = '/api/branding-asset/dev_photo';
 
 export const BUNDLED_LOGO_URL = logoImg;
 export const BUNDLED_DEV_PHOTO_URL = devImg;
+
+export function useBrandingUrls() {
+  const [v, setV] = useState(() => Date.now());
+
+  useEffect(() => {
+    const handleUpdate = () => setV(Date.now());
+    window.addEventListener('branding_updated', handleUpdate);
+    return () => window.removeEventListener('branding_updated', handleUpdate);
+  }, []);
+
+  return {
+    logoUrl: `/api/branding-asset/logo?v=${v}`,
+    devPhotoUrl: `/api/branding-asset/dev_photo?v=${v}`
+  };
+}
 
 // Helper to handle image loading fallback and automatically retry with bundled or alternate extensions
 export const handleImgError = (e, fallbackPath, bundledFallback) => {

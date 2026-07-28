@@ -1,9 +1,11 @@
 import { Link, useLocation } from "react-router-dom";
-import { LOGO_URL, DEV_PHOTO_URL, BUNDLED_LOGO_URL, BUNDLED_DEV_PHOTO_URL, handleImgError } from "@/lib/api";
+import { useBrandingUrls, BUNDLED_LOGO_URL, BUNDLED_DEV_PHOTO_URL, handleImgError } from "@/lib/api";
 import { Github, Mail, Heart, Linkedin, Instagram } from "lucide-react";
 
 export default function Footer() {
   const loc = useLocation();
+  const { logoUrl, devPhotoUrl } = useBrandingUrls();
+
   if (loc.pathname.startsWith("/viewer")) return null;
   return (
     <footer className="relative z-10 mt-32 border-t border-white/5" data-testid="footer">
@@ -16,7 +18,7 @@ export default function Footer() {
           <div className="relative shrink-0">
             <div className="absolute inset-0 bg-[#00E5D4]/30 blur-2xl rounded-full scale-110" />
             <img
-              src={DEV_PHOTO_URL}
+              src={devPhotoUrl}
               alt="Adesh Yash"
               className="relative w-32 h-32 md:w-36 md:h-36 rounded-full object-cover border-2 border-[#00E5D4]/60 shadow-[0_0_30px_rgba(0,229,212,0.45)]"
               data-testid="dev-photo"
@@ -67,7 +69,7 @@ export default function Footer() {
           <div className="flex items-center gap-3">
             <span className="logo-frame">
               <img
-                src={LOGO_URL}
+                src={logoUrl}
                 alt="BITVERSE"
                 className="w-16 h-16 object-contain block"
                 onError={(e) => handleImgError(e, '/assets/bitverse-logo.png', BUNDLED_LOGO_URL)}

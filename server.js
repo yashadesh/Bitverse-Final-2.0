@@ -608,6 +608,69 @@ apiRouter.get("/stats", async (req, res) => {
   }
 });
 
+// High-Speed Unified Site Bootstrap Endpoint for ultra-fast initial page load
+apiRouter.get("/bootstrap", async (req, res) => {
+  const cached = cache.get("site_bootstrap");
+  if (cached) {
+    res.setHeader("X-Cache", "HIT");
+    return res.json(cached);
+  }
+
+  try {
+    const filesCol = dbService.collection("files");
+    const subjectsCol = dbService.collection("subjects");
+    const modulesCol = dbService.collection("modules");
+    const resourcesCol = dbService.collection("resources");
+
+    const [notesCount, pyqsCount, syllabusCount, tutorialCount, bookFileCount, subjectsCount, modulesCount, resourcesCount, homepageDoc, announcementsList, subjectsList] = await Promise.all([
+      filesCol.countDocuments({ category: "notes", is_deleted: { $ne: true } }),
+      filesCol.countDocuments({ category: "pyq", is_deleted: { $ne: true } }),
+      filesCol.countDocuments({ category: "syllabus", is_deleted: { $ne: true } }),
+      filesCol.countDocuments({ category: "tutorial", is_deleted: { $ne: true } }),
+      filesCol.countDocuments({ category: "book", is_deleted: { $ne: true } }),
+      subjectsCol.countDocuments({}),
+      modulesCol.countDocuments({}),
+      resourcesCol.countDocuments({}),
+      dbService.collection("homepage_content").findOne({ id: "hp-1" }),
+      dbService.collection("announcements").find({}).sort({ created_at: -1 }).toArray(),
+      subjectsCol.find({}).sort({ semester: 1, name: 1 }).toArray()
+    ]);
+
+    const statsData = {
+      notes: notesCount,
+      pyqs: pyqsCount,
+      syllabus: syllabusCount,
+      tutorial: tutorialCount,
+      books: bookFileCount,
+      subjects: subjectsCount,
+      students: 1250,
+      semesters: 2,
+      modules: modulesCount,
+      resources: resourcesCount,
+      pdf_files: notesCount + pyqsCount + syllabusCount + tutorialCount + bookFileCount,
+      website_status: { server: "healthy", db: "connected", uptime: "99.98%" }
+    };
+
+    const result = {
+      stats: statsData,
+      homepage: homepageDoc || {
+        id: "hp-1",
+        hero_title: "BITVERSE",
+        hero_subtitle: "The Digital Universe of BIT Mesra",
+        hero_description: "Notes · PYQs · Syllabus · Resources — everything a First Year BITian needs, in one beautiful place."
+      },
+      announcements: announcementsList || [],
+      subjects: subjectsList || []
+    };
+
+    cache.set("site_bootstrap", result, 60); // cache for 60s
+    res.setHeader("X-Cache", "MISS");
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ detail: err.message });
+  }
+});
+
 // Admin Auth Routes
 apiRouter.post("/auth/login", authLimiter, async (req, res) => {
   const { email, password } = req.body;
@@ -1524,24 +1587,57 @@ apiRouter.post("/homepage", requireAdmin, multer().none(), async (req, res) => {
   }
 });
 
+apiRouter.get("/branding-asset/:type", async (req, res) => {
+  try {
+    const assetType = req.params.type; // "logo" or "dev_photo"
+    const targetBaseName = assetType === "dev_photo" ? "adesh-yash" : "bitverse-logo";
+
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+
+    // 1. Try DB first
+    const doc = await dbService.collection("site_branding").findOne({ asset_type: assetType });
+    if (doc && doc.file_b64) {
+      const buffer = Buffer.from(doc.file_b64, 'base64');
+      res.setHeader('Content-Type', doc.mime_type || 'image/png');
+      return res.send(buffer);
+    }
+
+    // 2. Fallback to disk file
+    const diskPath = path.join(process.cwd(), 'frontend', 'public', 'assets', `${targetBaseName}.png`);
+    if (fs.existsSync(diskPath)) {
+      res.setHeader('Content-Type', 'image/png');
+      return res.sendFile(diskPath);
+    }
+
+    res.status(404).send("Branding asset not found");
+  } catch (err) {
+    res.status(500).send(err.message);
+  }
+});
+
 apiRouter.get("/admin/branding-assets", requireAdmin, async (req, res) => {
   try {
     const logoPublicPath = path.join(process.cwd(), 'frontend', 'public', 'assets', 'bitverse-logo.png');
     const devPublicPath = path.join(process.cwd(), 'frontend', 'public', 'assets', 'adesh-yash.png');
 
-    const logoInfo = fs.existsSync(logoPublicPath) ? {
-      exists: true,
-      size: fs.statSync(logoPublicPath).size,
-      updated_at: fs.statSync(logoPublicPath).mtime,
-      url: `/assets/bitverse-logo.png?v=${Date.now()}`
-    } : { exists: false, url: '/assets/bitverse-logo.png' };
+    const dbLogo = await dbService.collection("site_branding").findOne({ asset_type: "logo" });
+    const dbDev = await dbService.collection("site_branding").findOne({ asset_type: "dev_photo" });
 
-    const devInfo = fs.existsSync(devPublicPath) ? {
-      exists: true,
-      size: fs.statSync(devPublicPath).size,
-      updated_at: fs.statSync(devPublicPath).mtime,
-      url: `/assets/adesh-yash.png?v=${Date.now()}`
-    } : { exists: false, url: '/assets/adesh-yash.png' };
+    const logoInfo = {
+      exists: !!(dbLogo || fs.existsSync(logoPublicPath)),
+      size: dbLogo ? Math.round((dbLogo.file_b64.length * 3) / 4) : (fs.existsSync(logoPublicPath) ? fs.statSync(logoPublicPath).size : 0),
+      updated_at: dbLogo ? dbLogo.updated_at : (fs.existsSync(logoPublicPath) ? fs.statSync(logoPublicPath).mtime : null),
+      url: dbLogo ? `/api/branding-asset/logo?v=${Date.now()}` : `/assets/bitverse-logo.png?v=${Date.now()}`
+    };
+
+    const devInfo = {
+      exists: !!(dbDev || fs.existsSync(devPublicPath)),
+      size: dbDev ? Math.round((dbDev.file_b64.length * 3) / 4) : (fs.existsSync(devPublicPath) ? fs.statSync(devPublicPath).size : 0),
+      updated_at: dbDev ? dbDev.updated_at : (fs.existsSync(devPublicPath) ? fs.statSync(devPublicPath).mtime : null),
+      url: dbDev ? `/api/branding-asset/dev_photo?v=${Date.now()}` : `/assets/adesh-yash.png?v=${Date.now()}`
+    };
 
     res.json({
       logo: logoInfo,
@@ -1569,6 +1665,7 @@ apiRouter.post("/admin/upload-branding-asset", requireAdmin, upload.single("file
 
     const ext = path.extname(req.file.originalname).toLowerCase() || '.png';
 
+    // 1. Save to local disk locations
     for (const dir of dirsToSave) {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
@@ -1582,6 +1679,20 @@ apiRouter.post("/admin/upload-branding-asset", requireAdmin, upload.single("file
         fs.writeFileSync(path.join(dir, `${targetBaseName}${ext}`), req.file.buffer);
       }
     }
+
+    // 2. Save into MongoDB database for cloud persistence across app deployments
+    await dbService.collection("site_branding").updateOne(
+      { asset_type: assetType },
+      {
+        $set: {
+          asset_type: assetType,
+          file_b64: req.file.buffer.toString('base64'),
+          mime_type: req.file.mimetype || 'image/png',
+          updated_at: new Date().toISOString()
+        }
+      },
+      { upsert: true }
+    );
 
     // Save activity log entry
     await dbService.collection("activity_log").insertOne({

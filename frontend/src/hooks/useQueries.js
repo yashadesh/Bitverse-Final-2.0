@@ -1,9 +1,27 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 
 // Default stale time of 5 minutes for student resources (notes, books, syllabus, pyqs)
 // to dramatically reduce database pressure while keeping data fresh.
 const DEFAULT_STALE_TIME = 5 * 60 * 1000; 
+
+export function useBootstrapData() {
+  const queryClient = useQueryClient();
+  return useQuery({
+    queryKey: ["site-bootstrap"],
+    queryFn: async () => {
+      const { data } = await api.get("/bootstrap");
+      if (data) {
+        if (data.stats) queryClient.setQueryData(["stats"], data.stats);
+        if (data.homepage) queryClient.setQueryData(["homepage"], data.homepage);
+        if (data.announcements) queryClient.setQueryData(["announcements"], data.announcements);
+        if (data.subjects) queryClient.setQueryData(["subjects", { semester: undefined }], data.subjects);
+      }
+      return data;
+    },
+    staleTime: DEFAULT_STALE_TIME,
+  });
+} 
 
 export function useStats() {
   return useQuery({
