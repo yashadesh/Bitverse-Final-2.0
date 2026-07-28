@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BITVERSE - Technical Architectural Reference Guide</title>
+  <style>
+    :root {
+      --bg-color: #05070a;
+      --text-color: #f3f4f6;
+      --primary: #00e5d4;
+      --secondary: #10b981;
+      --card-bg: #0a0e14;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --muted-text: rgba(255, 255, 255, 0.6);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    header {
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 20px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 36px;
+      margin: 0;
+      color: var(--primary);
+      letter-spacing: 1px;
+    }
+
+    header p {
+      font-size: 16px;
+      color: var(--muted-text);
+      margin: 5px 0 0 0;
+    }
+
+    h2 {
+      font-size: 24px;
+      color: var(--primary);
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      margin-top: 40px;
+    }
+
+    h3 {
+      font-size: 18px;
+      color: var(--secondary);
+      margin-top: 25px;
+    }
+
+    p {
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    ul, ol {
+      padding-left: 20px;
+    }
+
+    li {
+      margin-bottom: 8px;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background-color: rgba(255, 255, 255, 0.08);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    pre {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 14px;
+      color: #38bdf8;
+    }
+
+    .info-box {
+      background: rgba(0, 229, 212, 0.05);
+      border-left: 4px solid var(--primary);
+      padding: 15px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin: 20px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .no-print {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .print-btn {
+      background-color: var(--primary);
+      color: #000;
+      font-weight: bold;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all 0.2s;
+    }
+
+    .print-btn:hover {
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+
+    @media print {
+      body {
+        background-color: #fff !important;
+        color: #000 !important;
+      }
+      :root {
+        --bg-color: #fff;
+        --text-color: #000;
+        --primary: #111;
+        --secondary: #333;
+        --card-bg: #fff;
+        --border-color: #ddd;
+        --muted-text: #555;
+      }
+      .no-print {
+        display: none !important;
+      }
+      pre {
+        background-color: #f5f5f5 !important;
+        color: #000 !important;
+        border: 1px solid #ccc !important;
+      }
+      code {
+        background-color: #eee !important;
+        color: #000 !important;
+      }
+      .info-box {
+        background-color: #f9f9f9 !important;
+        border-left: 4px solid #000 !important;
+      }
+      .container {
+        padding: 0;
+      }
+      p, li, td {
+        color: #000 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="no-print">
+      <button class="print-btn" onclick="window.print()">Print / Save as PDF 📄</button>
+      <p style="font-size: 13px; color: var(--muted-text);">Tip: Click the button above, select "Save as PDF" to download the beautiful, structured reference guide!</p>
+    </div>
+
+    <header>
+      <h1>BITVERSE</h1>
+      <p>Technical Architectural Reference & Deep Study Blueprint Guide</p>
+    </header>
+
+    <h2>1. Project Vision & Purpose</h2>
+    <p>
+      <strong>BITVERSE</strong> is a bespoke digital library developed exclusively for First-Year engineering students at the <strong>Birla Institute of Technology (BIT) Mesra, Ranchi</strong>. It centralizes digital notes, textbooks, syllabus templates, and previous year examination papers (PYQs). Its core mission is to provide an aesthetic, zero-friction, incredibly fast study resource portal that remains completely accessible and durable through unique self-healing local-to-cloud server features.
+    </p>
+
+    <h2>2. Programming Languages & Core Technologies Used</h2>
+    
+    <h3>Front-End Web UI</h3>
+    <ul>
+      <li><strong>JavaScript (ES6+) / JSX:</strong> Powering the fully responsive single-page visual components.</li>
+      <li><strong>React (v18.3.1):</strong> Manages interactive visual lifecycle hooks, layout state management, and real-time updates.</li>
+      <li><strong>React Router DOM (v7.15.0):</strong> Coordinates paths to pages (e.g., modules, notes, PYQs, and administration views).</li>
+      <li><strong>Tailwind CSS (v3.4.17):</strong> Handles the modern, eye-safe high-contrast dark visual aesthetics with custom layouts.</li>
+      <li><strong>Framer Motion (v11.18.0):</strong> Hardware-accelerated UI transition effects (e.g., hover scaling, slide animations).</li>
+      <li><strong>Lucide React:</strong> Standardized crisp vector icons.</li>
+      <li><strong>Axios:</strong> Coordinates REST API connection with custom headers and error interceptors.</li>
+    </ul>
+
+    <h3>Back-End Platform</h3>
+    <ul>
+      <li><strong>Node.js:</strong> The structural asynchronous execution runtime.</li>
+      <li><strong>Express (v4.19.2):</strong> Handles the JSON routers, static asset delivery, upload stream processing, and server-side logic.</li>
+      <li><strong>JSON Web Tokens (JWT):</strong> Signed bearer security headers representing admin sessions.</li>
+      <li><strong>Bcrypt.js:</strong> Provides cryptographic database hashing for root accounts.</li>
+    </ul>
+
+    <h3>Database & File Persistence</h3>
+    <ul>
+      <li><strong>MongoDB Atlas:</strong> Highly resilient NoSQL database client organizing complex records.</li>
+      <li><strong>Hybrid Base64 Binary Stream Model:</strong> Files below 15MB are converted to base64 strings and written permanently to the database. If a container restart reboots local server storage, the files are dynamically restored from MongoDB and rewritten back to local storage automatically.</li>
+    </ul>
+
+    <h2>3. Complete Folder Mapping & Directory Map</h2>
+    <pre>
+bitverse-root/
+├── server.js                 # Central Express REST API, streaming logic, and static server routing
+├── db.js                     # MongoDB driver connections, schemas, indexes, and custom DB queries
+├── package.json              # Shared project workspace definitions and deployment instructions
+└── frontend/                 # Client React interface source code
+    ├── src/
+    │   ├── App.js            # Frontend Router mapping pages and guarding admin panels
+    │   ├── pages/
+    │   │   ├── Home.jsx      # Slideshows, announcements board, and semester navigators
+    │   │   ├── NotesHub.jsx  # Primary search indexing filter for digital notes
+    │   │   ├── PYQsHub.jsx   # Previous Year Question grids organized by year & subject
+    │   │   ├── BstExplorer.jsx # Interactive animated Binary Search Tree visual simulator
+    │   │   ├── Viewer.jsx    # Custom document viewport displaying direct browser previews
+    │   │   └── Admin.jsx     # Database management dashboard with full CRUD capabilities
+    │   └── lib/
+    │       ├── api.js        # Axios instance configured for automatic JWT header attachments
+    │       └── auth.jsx      # React Context Provider tracking active sessions and sign-outs
+    </pre>
+
+    <h2>4. Core Database Schema Designs (NoSQL Document Structure)</h2>
+    
+    <h3>Subjects Collection</h3>
+    <pre>{
+  "id": "String (UUID)",
+  "name": "String (e.g. 'Environmental Science')",
+  "slug": "String (e.g. 'environmental-science')",
+  "semester": "Number (1 to 8)",
+  "description": "String",
+  "cover_image": "String (Image URL)",
+  "created_at": "String (ISO Date)"
+}</pre>
+
+    <h3>Files & Documents Collection</h3>
+    <pre>{
+  "id": "String (UUID)",
+  "display_name": "String (e.g. 'Chemistry Notes Module 1')",
+  "original_filename": "String (e.g. 'Mod1Chem.pdf')",
+  "subject_id": "String (UUID)",
+  "module_id": "String (UUID, Optional)",
+  "category": "String ('notes' | 'pyq' | 'syllabus' | 'book')",
+  "pyq_type": "String ('mid-sem' | 'end-sem' | null)",
+  "mime_type": "String (e.g. 'application/pdf')",
+  "url": "String (Local storage fallback URL)",
+  "size": "Number (Bytes)",
+  "file_data_b64": "String (Base64 Binary Backup Blob - under 15MB)",
+  "download_count": "Number",
+  "view_count": "Number",
+  "is_deleted": "Boolean"
+}</pre>
+
+    <h2>5. Back-End Express API Routings</h2>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Endpoint</th>
+            <th>HTTP Method</th>
+            <th>Access Control</th>
+            <th>Functional Purpose</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>/api/auth/login</code></td>
+            <td><code>POST</code></td>
+            <td>Public</td>
+            <td>Verifies credentials and issues signed JWT bearer tokens.</td>
+          </tr>
+          <tr>
+            <td><code>/api/subjects</code></td>
+            <td><code>GET</code></td>
+            <td>Public</td>
+            <td>Lists all curriculum courses. Cache-optimized.</td>
+          </tr>
+          <tr>
+            <td><code>/api/files</code></td>
+            <td><code>GET</code></td>
+            <td>Public</td>
+            <td>Aggregates notes, textbooks, and exam papers with search keywords.</td>
+          </tr>
+          <tr>
+            <td><code>/api/files/:id/view</code></td>
+            <td><code>GET</code></td>
+            <td>Public</td>
+            <td>Increments view counts and opens standard PDF data inline.</td>
+          </tr>
+          <tr>
+            <td><code>/api/files/:id/download</code></td>
+            <td><code>GET</code></td>
+            <td>Public</td>
+            <td>Triggers attachment download and updates dashboard metrics.</td>
+          </tr>
+          <tr>
+            <td><code>/api/admin/files</code></td>
+            <td><code>POST</code></td>
+            <td>Admin (JWT Protected)</td>
+            <td>Uploads documents, parsing binary streams into cloud DB fallback storage.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>6. Highlighted System Capabilities & Workflows</h2>
+    
+    <div class="info-box">
+      <strong>A. Automated Disaster Recovery (Self-Healing Storage):</strong><br>
+      Most cloud deployments use ephemeral server instances. When a container reboots, its local file storage is completely erased. BITVERSE resolves this by acting as a hybrid database repository. When file uploads occur, the binary buffer is saved in MongoDB as base64 data. If a requested local file is missing, the backend instantly recreates the binary, updates local directories, and returns the file stream without interrupting the student's reading session.
+    </div>
+
+    <div class="info-box">
+      <strong>B. Interactive Binary Search Tree (BST) visualizer:</strong><br>
+      A purpose-built algorithmic module tailored for First-Year engineering students studying computer science. It animates insertion, deletion, and search actions in real-time using interactive graphical nodes, compiling preorder, inorder, and postorder notations instantly.
+    </div>
+
+    <h2>7. Reproduction Guide (To Build from Scratch)</h2>
+    <ol>
+      <li>Verify Node.js (v18+) and MongoDB are running locally or on MongoDB Atlas.</li>
+      <li>Clone the repository and run <code>npm install</code> to install dependencies in both backend and frontend workspaces.</li>
+      <li>Configure required parameters in a root <code>.env</code> file (including <code>MONGODB_URI</code>, <code>JWT_SECRET</code>, and <code>ADMIN_EMAIL</code>).</li>
+      <li>Compile the React production distribution by executing <code>npm run build</code>.</li>
+      <li>Launch the live, optimized digital ecosystem using <code>npm start</code>.</li>
+    </ol>
+  </div>
+</body>
+</html>

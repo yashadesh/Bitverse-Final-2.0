@@ -1,0 +1,8 @@
+{
+  "name": "Bitverse | Student Resource Hub for BIT Mesra",
+  "description": "Bitverse is the premier digital resource hub for BIT Mesra students. Access academic notes, previous year papers (PYQs), syllabus, and exam prep resources.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

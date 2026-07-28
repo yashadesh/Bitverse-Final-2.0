@@ -1,0 +1,11 @@
+# Host
+Host: https://www.bitverse.co.in
+
+# Paths
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://www.bitverse.co.in/sitemap.xml

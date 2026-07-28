@@ -1,0 +1,38 @@
+{
+  "name": "bitverse-root",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "frontend"
+  ],
+  "scripts": {
+    "build:frontend": "cd frontend && CI=false DISABLE_ESLINT_PLUGIN=true npm run build",
+    "dev": "npm run build:frontend && node server.js",
+    "build": "cd frontend && CI=false DISABLE_ESLINT_PLUGIN=true npm run build",
+    "deploy:cloudflare": "npm run build:frontend && wrangler pages deploy frontend/dist",
+    "start": "node server.js",
+    "lint": "echo 'No lint script required'"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.1.0",
+    "compression": "^1.8.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.6.1",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.5.0",
+    "multer": "^1.4.5-lts.1",
+    "react-scripts": "^5.0.1",
+    "@craco/craco": "^7.1.0"
+  },
+  "overrides": {
+    "tailwindcss": "3.4.17"
+  },
+  "devDependencies": {
+    "wrangler": "^4.114.0"
+  }
+}
