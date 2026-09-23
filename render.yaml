@@ -1,16 +1,22 @@
 services:
   - type: web
-    name: bitverse-app
-    env: node
+    name: bitverse
+    runtime: node
     plan: free
     buildCommand: npm run build
-    startCommand: node server.js
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
+      - key: MONGO_URL
         sync: false
+      - key: DB_NAME
+        value: bitverse
       - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
         sync: false
       - key: CLOUDINARY_CLOUD_NAME
         sync: false

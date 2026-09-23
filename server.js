@@ -1123,20 +1123,8 @@ apiRouter.get("/files/:id/view", async (req, res) => {
       return res.redirect(`https://docs.google.com/gview?url=${encodeURIComponent(absoluteDownloadUrl)}&embedded=true`);
     }
 
-    // 2.5 Prioritize Database Binary Stream (survives container restarts)
-    if (file.file_data_b64) {
-      const buffer = Buffer.from(file.file_data_b64, "base64");
-      res.setHeader("Content-Type", file.mime_type || "application/pdf");
-      res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(file.original_filename || "file.pdf")}"`);
-      return res.send(buffer);
-    }
-
-    // 3. Check for external URLs
-    if (!file.url || file.url.trim() === "") {
-      return res.status(404).json({ detail: "File URL is missing. Please edit or re-upload this file in the Admin panel." });
-    }
-
-    const isExternalUrl = file.url.startsWith("http://") || file.url.startsWith("https://");
+    // 2.5 If file has an external Cloud URL (Cloudinary, Drive, etc.), redirect directly (Zero Server Bandwidth!)
+    const isExternalUrl = file.url && (file.url.startsWith("http://") || file.url.startsWith("https://"));
     if (isExternalUrl) {
       // Direct Google Drive link handling: format into standard web previews rather than raw file links
       if (file.url.includes("drive.google.com")) {
@@ -1147,20 +1135,19 @@ apiRouter.get("/files/:id/view", async (req, res) => {
         }
         return res.redirect(driveUrl);
       }
-
-      // Stream PDF files locally to bypass CORS constraints in the frontend iframe
-      const fileExt = (file.original_filename || "").split(".").pop()?.toLowerCase();
-      if (fileExt === "pdf" || file.mime_type === "application/pdf") {
-        try {
-          const { buffer, contentType } = await getObject(file.url);
-          res.setHeader("Content-Type", contentType || "application/pdf");
-          res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(file.original_filename || "file.pdf")}"`);
-          return res.send(buffer);
-        } catch (proxyErr) {
-          console.warn("Failed to proxy external PDF direct stream, falling back to redirect:", proxyErr);
-        }
-      }
       return res.redirect(file.url);
+    }
+
+    // 3. Fallback to Database Binary Stream only if no external URL exists
+    if (file.file_data_b64) {
+      const buffer = Buffer.from(file.file_data_b64, "base64");
+      res.setHeader("Content-Type", file.mime_type || "application/pdf");
+      res.setHeader("Content-Disposition", `inline; filename="${encodeURIComponent(file.original_filename || "file.pdf")}"`);
+      return res.send(buffer);
+    }
+
+    if (!file.url || file.url.trim() === "") {
+      return res.status(404).json({ detail: "File URL is missing. Please edit or re-upload this file in the Admin panel." });
     }
     
     // Support relative local fallback storage paths (e.g. starting with "/api/")
@@ -1443,17 +1430,18 @@ apiRouter.get("/files/:id/download", async (req, res) => {
       time: new Date().toISOString()
     }).catch(err => console.error("Log download activity error:", err));
 
-    // Prioritize Database Binary Stream (survives container restarts)
+    // 1. Prioritize direct external cloud download (Zero Server Bandwidth!)
+    const isExternalUrl = file.url && (file.url.startsWith("http://") || file.url.startsWith("https://"));
+    if (isExternalUrl) {
+      return res.redirect(file.url);
+    }
+
+    // 2. Database Binary Stream only as fallback
     if (file.file_data_b64) {
       const buffer = Buffer.from(file.file_data_b64, "base64");
       res.setHeader("Content-Type", file.mime_type || "application/octet-stream");
       res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(file.original_filename || "file")}"`);
       return res.send(buffer);
-    }
-
-    const isExternalUrl = file.url.startsWith("http://") || file.url.startsWith("https://");
-    if (isExternalUrl) {
-      return res.redirect(file.url);
     }
 
     // Support relative local fallback storage paths (e.g. starting with "/api/")
