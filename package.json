@@ -1,31 +1,30 @@
 {
-  "name": "bitverse-root",
+  "name": "bitverse-backend",
   "version": "1.0.0",
-  "private": true,
-  "type": "module",
+  "description": "Bitverse E-commerce Backend",
+  "main": "server.js",
   "scripts": {
-    "build:frontend": "npm --prefix frontend install --include=dev --loglevel=error && npm --prefix frontend run build",
-    "dev": "npm run build && node server.js",
-    "build": "npm install --loglevel=error && npm --prefix frontend install --include=dev --loglevel=error && npm --prefix frontend run build",
-    "deploy:cloudflare": "npm --prefix frontend install --loglevel=error && npm --prefix frontend run build && wrangler pages deploy frontend/dist",
     "start": "node server.js",
-    "lint": "echo 'No lint script required'"
+    "server": "nodemon server.js",
+    "client": "npm start --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "postinstall": "npm --prefix frontend install",
+    "build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "vercel-build": "npm --prefix frontend install && npm --prefix frontend run build",
+    "install-all": "npm install && cd frontend && npm install"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
-    "cloudinary": "^2.1.0",
-    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "express-rate-limit": "^8.6.1",
-    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.2",
-    "mongodb": "^6.5.0",
-    "multer": "^1.4.5-lts.1"
+    "mongoose": "^8.3.1",
+    "nodemailer": "^6.9.13",
+    "razorpay": "^2.9.2"
   },
   "devDependencies": {
-    "pngjs": "^7.0.0",
-    "wrangler": "^4.114.0"
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.0"
   }
 }
